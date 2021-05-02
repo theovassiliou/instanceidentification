@@ -3,6 +3,7 @@ package instanceid
 import (
 	"strconv"
 	"strings"
+	"time"
 )
 
 // This package supports the handling of instance-identification fields
@@ -27,7 +28,7 @@ import (
 // Ciid represents the complete call-graph as instance-id
 type Ciid struct {
 	Miid  Miid
-	Ciids []Ciid
+	Ciids Stack
 }
 
 // Miid represents the instance only by it's name, version, additional information
@@ -38,6 +39,9 @@ type Miid struct {
 	Va string
 	T  int
 }
+
+// Stack represents a list of services that have been called by the Ciid
+type Stack []Ciid
 
 // NewCiid creates a new Ciid from a string in the form of
 // Sn1/Vn1/Va1%t1s(Sn2/Vn2/Va2%t2s+Sn3/Vn3/Va3%t3s(Sn4/Vn4/Va4%t4s))
@@ -52,6 +56,28 @@ func NewCiid(id string) (ciid Ciid) {
 // If there are syntax errors an empty Miid will be returned
 func NewMiid(id string) (miid Miid) {
 	return parseMIID(id)
+}
+
+// Push a new value onto the stack
+func (s *Stack) Push(str Ciid) {
+	*s = append(*s, str) // Simply append the new value to the end of the stack
+}
+
+// IsEmpty: check if stack is empty
+func (s *Stack) IsEmpty() bool {
+	return len(*s) == 0
+}
+
+// Remove and return top element of stack. Return false if stack is empty.
+func (s *Stack) Pop() (Ciid, bool) {
+	if s.IsEmpty() {
+		return Ciid{}, false
+	} else {
+		index := len(*s) - 1   // Get the index of the top most element.
+		element := (*s)[index] // Index into the slice and obtain the element.
+		*s = (*s)[:index]      // Remove it from the stack by slicing it off.
+		return element, true
+	}
 }
 
 // SanityCheck checks the given miid against some rules to ensure that it can be an Miid
@@ -77,6 +103,16 @@ func SanityCheck(miid string) bool {
 	}
 
 	return true
+}
+
+func (myself *Ciid) SetStack(callStack Stack) *Ciid {
+	myself.Ciids = callStack
+	return myself
+}
+
+func (myself *Ciid) ClearStack() *Ciid {
+	myself.Ciids = nil
+	return myself
 }
 
 func (c *Ciid) String() string {
@@ -117,6 +153,18 @@ func (ciid *Ciid) Contains(miid string) bool {
 		return false
 	}
 	return strings.Contains(ciid.String(), miid)
+}
+
+func (ciid *Ciid) SetEpoch(startTime time.Time) *Ciid {
+	epoch := time.Since(startTime)
+	ciid.Miid.T = int(epoch.Seconds())
+	return ciid
+}
+
+func (miid *Miid) SetEpoch(startTime time.Time) *Miid {
+	epoch := time.Since(startTime)
+	miid.T = int(epoch.Seconds())
+	return miid
 }
 
 // Contains returns true if s is contained left aligned, else or if s is empty return false
