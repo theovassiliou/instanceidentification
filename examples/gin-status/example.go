@@ -35,7 +35,8 @@ func main() {
 		callStack.Push(iid.NewCiid("monitoring/1.1%22242s"))
 		ciid.SetStack(callStack).SetEpoch(startTime)
 		c.Header("X-Instance-Id", ciid.String())
-		log.Debugln("We called the following services:", iid.PrintCiid(ciid))
+		log.Println("We called the following services:", iid.PrintCiid(ciid))
+
 		c.JSON(200, gin.H{
 			"health": "degraded",
 		})
