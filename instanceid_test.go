@@ -169,7 +169,8 @@ func Test_parseMIID(t *testing.T) {
 			Miid{
 				Sn: "msA",
 				Vn: "1.17",
-				T:  0,
+				Va: "addInfo/surplusInfo",
+				T:  333,
 			},
 		},
 	}
@@ -377,9 +378,9 @@ func Test_parseCiid(t *testing.T) {
 			args{
 				"A/1.1%22s(B/1.1%22s+C/1.1%22s(D/1.1%22s+E/1.1%22s))",
 			},
-			Ciid{A, []Ciid{
+			Ciid{Miid: A, Ciids: []Ciid{
 				{Miid: B},
-				{C, []Ciid{
+				{Miid: C, Ciids: []Ciid{
 					{Miid: D},
 					{Miid: E},
 				}}}},
@@ -389,8 +390,8 @@ func Test_parseCiid(t *testing.T) {
 			args{
 				"A/1.1%22s(B/1.1%22s)",
 			},
-			Ciid{A,
-				[]Ciid{
+			Ciid{Miid: A,
+				Ciids: []Ciid{
 					{Miid: B},
 				},
 			},
@@ -400,8 +401,8 @@ func Test_parseCiid(t *testing.T) {
 			args{
 				"A/1.1%22s(B/1.1%22s+C/1.1%22s)",
 			},
-			Ciid{A,
-				[]Ciid{
+			Ciid{Miid: A,
+				Ciids: []Ciid{
 					{Miid: B},
 					{Miid: C},
 				},
@@ -508,9 +509,9 @@ func Test_printCiid(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := len(PrintCiid(tt.args.ciid)); got != tt.want {
+			if got := len(tt.args.ciid.PrintCiid()); got != tt.want {
 				t.Errorf("printCiid() = %v, want %v", got, tt.want)
-				t.Errorf("theTree() = \n%v", PrintCiid(tt.args.ciid))
+				t.Errorf("theTree() = \n%v", tt.args.ciid.PrintCiid())
 			}
 		})
 	}
@@ -581,26 +582,26 @@ func TestNewCiid(t *testing.T) {
 			"simpleMiid",
 			args{"msA/1.1%22s"},
 			Ciid{
-				Miid{
+				Miid: Miid{
 					Sn: "msA",
 					Vn: "1.1",
 					Va: "",
 					T:  22,
 				},
-				nil,
+				Ciids: nil,
 			},
 		},
 		{
 			"simpleMiid2",
 			args{"SS/1.2/YY%0s"},
 			Ciid{
-				Miid{
+				Miid: Miid{
 					Sn: "SS",
 					Vn: "1.2",
 					Va: "YY",
 					T:  0,
 				},
-				nil,
+				Ciids: nil,
 			},
 		},
 		{

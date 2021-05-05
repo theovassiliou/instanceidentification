@@ -9,10 +9,11 @@
 * **Caller** - The microservice that initiates a request
 * **Callee** - The microservice that receives a request and provides a response
 * **Call Chain** - If a service A (**caller**) calls a service B (**callee**) we call this a **call chain**.
-* **(Complete) Call Graph** - If a call chain contains all services that have been called we call the **call graph**, or **complete call graph**
+* **(Complete) Call Graph** - If a call chain contains all services that have been called we call this the **call graph**, or **complete call graph**
 * **known call graph** - If we would like to emphasize that the **call graph** contains only services that we could control we call this **known call graph**
 * **directed call graph** - lists all calls in the order they occurred.
-* **recording service** - We call a service that records the services it has contacted to build a call graph  **recording service**
+* **recording service** - We call a service that records the services it has contacted to build a call graph **recording service**
+* **disclosing service** - We call a **recording service** a **disclosing service** if it sends back the information to the client on request
 * **shallow** - A service that reports as **Ciid** only its own **Miid**
 * **deep** - A service that reports as  **Ciid** in addition to its own **Miid** the **Ciid**s of contacted or called services.
 * **contacted services** - If a service does not maintain the order of services used to respond to a request, it reports the **contacted services**.
@@ -54,6 +55,14 @@ Describes that _service a_ calls  _service b_ and then _service c_
 
 ### External service
 
+When recording calls to external services, there is basically not much knowledge ca
+
+	base62 encoded external URLs
+	Wikimedia/x/aHR0cHM6Ly9kZS53aWtpcXVvdGUub3JnL3dpa2kvS2xlb2J1bG9zX3Zvbl9MaW5kb3M%-1s
+	Google/x/aaHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvMW55SldTRkRSRkRrN3lqZEZ6bURMWkxLdk1oREVWV1c4ZUc5bUtDR2tqYlEvZWRpdCNnaWQ9MA==%-1s
+	
+	
+
 ## Call Graphs
 
 There are several options on how to create a call graph, or on how a call is to be interpreted.
@@ -77,17 +86,43 @@ However, there are several options on how a service can behave:
 When implementing IID capabilities in a service 
 Every service that is out of the control of the organization is considered to be an external service. **External services** are likely not to be able to report their Ciids.
 
-### By expectation vs by reporting
+### By expectation vs by confirmation
 
 If a service records (enumerates or lists) contacted services it has to expect that a service can or will not disclose its identity. This is, in particular, relevant for external services. We call a service that records its contacted services to return them as part of its Ciid a **recording services**.
 
 A recording service can create a record entry either
 
 * by expectation _or_
-* by reporting
+* by confirmation
 
-**By expectation** means that a call graph entry is based on information created by the _caller_ while be **by reporting** means that the respective call graph entry is created by the information as provided by the _callee_.
+**By expectation** means that a call graph entry is based on information created by the _caller_ while be **by confirmation** means that the respective call graph entry is created by the information as provided by the _callee_.
 
-A **reporting** service _should_ recording a called to service if, and only if the *callee* has responded with a valid Ciid. An **expecting** service _should_ record every service it is contacting and _should_ replace the _expected_ information with the _reported_ information.
+A **confirming** service _should_ record a called to service if, and only if the *callee* has responded with a valid Ciid. An **expecting** service _should_ record every service it is contacting and _should_ replace the _expected_ information with the _confirmed_ information.
 
-A service _should_ not combine or mix reporting **by expectation** and **by reporting**.
+A service _should_ not combine or mix reporting **by expectation** and **by confirmation**.
+
+
+### A comparison of base62x, base64 and urlencode
+
+base62x: 	https://ufqi.com/dev/base62x/
+base64: 	https://www.base64encode.org/
+urlencode: 	https://www.urlencoder.org/
+
+Referenz:
+
+	plain: 		https://de.wikiquote.org/wiki/Kleobulos_von_Lindos
+	base62x:	httpsxhxgxgdexfwikiquotexforgxgwikixgKleobulosxsvonxsLindosx
+	base64: 	aHR0cHM6Ly9kZS53aWtpcXVvdGUub3JnL3dpa2kvS2xlb2J1bG9zX3Zvbl9MaW5kb3M=
+	urlencode: 	https%3A%2F%2Fde.wikiquote.org%2Fwiki%2FKleobulos_von_Lindos
+
+
+	plain:		https://docs.google.com/spreadsheets/d/1nyJWSFDRFDk7yjdFzmDLZLKvMhDEVWW8eG9mKCGkjbQ/edit#gid=0
+	base62x:	httpsxhxgxgdocsxfgooglexfcomxgspreadsheetsxgdxg1nyJWSFDRFDk7yjdFzmDLZLKvMhDEVWW8eG9mKCGkjbQxgeditxUgidxk0x
+	base64: 	aaHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvMW55SldTRkRSRkRrN3lqZEZ6bURMWkxLdk1oREVWV1c4ZUc5bUtDR2tqYlEvZWRpdCNnaWQ9MA==
+	urlencode: 	https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1nyJWSFDRFDk7yjdFzmDLZLKvMhDEVWW8eG9mKCGkjbQ%2Fedit%23gid%3D0
+
+
+	plain:		https://www.google.com/search?client=firefox-b-d&q=example+query+parameters+url
+	base62x:	httpsxhxgxgwwwxfgooglexfcomxgsearchxmclientxkfirefoxxxebxedxXqxkexxamplexcqueryxcparametersxcurlx
+	base64: 	aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9zZWFyY2g/Y2xpZW50PWZpcmVmb3gtYi1kJnE9ZXhhbXBsZStxdWVyeStwYXJhbWV0ZXJzK3VybA==
+	urlencode: 	https%3A%2F%2Fwww.google.com%2Fsearch%3Fclient%3Dfirefox-b-d%26q%3Dexample%2Bquery%2Bparameters%2Burl
