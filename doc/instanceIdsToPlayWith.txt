@@ -104,25 +104,25 @@ A service _should_ not combine or mix reporting **by expectation** and **by conf
 
 ### A comparison of base62x, base64 and urlencode
 
-base62x: 	https://ufqi.com/dev/base62x/
 base64: 	https://www.base64encode.org/
 urlencode: 	https://www.urlencoder.org/
+base62x: 	https://ufqi.com/dev/base62x/
 
 Referenz:
 
 	plain: 		https://de.wikiquote.org/wiki/Kleobulos_von_Lindos
-	base62x:	httpsxhxgxgdexfwikiquotexforgxgwikixgKleobulosxsvonxsLindosx
 	base64: 	aHR0cHM6Ly9kZS53aWtpcXVvdGUub3JnL3dpa2kvS2xlb2J1bG9zX3Zvbl9MaW5kb3M=
 	urlencode: 	https%3A%2F%2Fde.wikiquote.org%2Fwiki%2FKleobulos_von_Lindos
+	base62x:	httpsxhxgxgdexfwikiquotexforgxgwikixgKleobulosxsvonxsLindosx
 
 
 	plain:		https://docs.google.com/spreadsheets/d/1nyJWSFDRFDk7yjdFzmDLZLKvMhDEVWW8eG9mKCGkjbQ/edit#gid=0
-	base62x:	httpsxhxgxgdocsxfgooglexfcomxgspreadsheetsxgdxg1nyJWSFDRFDk7yjdFzmDLZLKvMhDEVWW8eG9mKCGkjbQxgeditxUgidxk0x
 	base64: 	aaHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvMW55SldTRkRSRkRrN3lqZEZ6bURMWkxLdk1oREVWV1c4ZUc5bUtDR2tqYlEvZWRpdCNnaWQ9MA==
 	urlencode: 	https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1nyJWSFDRFDk7yjdFzmDLZLKvMhDEVWW8eG9mKCGkjbQ%2Fedit%23gid%3D0
+	base62x:	httpsxhxgxgdocsxfgooglexfcomxgspreadsheetsxgdxg1nyJWSFDRFDk7yjdFzmDLZLKvMhDEVWW8eG9mKCGkjbQxgeditxUgidxk0x
 
 
 	plain:		https://www.google.com/search?client=firefox-b-d&q=example+query+parameters+url
-	base62x:	httpsxhxgxgwwwxfgooglexfcomxgsearchxmclientxkfirefoxxxebxedxXqxkexxamplexcqueryxcparametersxcurlx
 	base64: 	aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9zZWFyY2g/Y2xpZW50PWZpcmVmb3gtYi1kJnE9ZXhhbXBsZStxdWVyeStwYXJhbWV0ZXJzK3VybA==
 	urlencode: 	https%3A%2F%2Fwww.google.com%2Fsearch%3Fclient%3Dfirefox-b-d%26q%3Dexample%2Bquery%2Bparameters%2Burl
+	base62x:	httpsxhxgxgwwwxfgooglexfcomxgsearchxmclientxkfirefoxxxebxedxXqxkexxamplexcqueryxcparametersxcurlx

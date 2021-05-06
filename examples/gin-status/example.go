@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/base64"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -18,7 +17,7 @@ var startTime time.Time
 var thisServiceCIID iid.Ciid
 
 func init() {
-	thisServiceCIID = iid.NewCiid(THISSERVICE)
+	thisServiceCIID = iid.NewStdCiid(THISSERVICE)
 	startTime = time.Now()
 }
 
@@ -38,38 +37,16 @@ func main() {
 	// -- Example returning a simple call-graph
 	r.GET("/health", func(c *gin.Context) {
 		ciid := thisServiceCIID
-		var callStack = ciid.Ciids
+		var callStack = ciid.Ciids()
 
-		callStack.Push(iid.NewCiid("database/1.2%33s(storageService/0.2%77s)"))
-		callStack.Push(iid.NewCiid("monitoring/1.1%22242s"))
-		ciid.SetStack(callStack).SetEpoch(startTime)
-		c.Header("X-Instance-Id", ciid.String())
-		log.Println("We called the following services:", ciid.PrintCiid())
+		callStack.Push(iid.NewStdCiid("database/1.2%33s(storageService/0.2%77s)"))
+		callStack.Push(iid.NewStdCiid("monitoring/1.1%22242s"))
+		ciid.SetCiids(callStack).SetEpoch(startTime)
+		c.Header(iid.XINSTANCEID, ciid.String())
+		log.Println("We called the following services:", ciid.(iid.StdCiid).TreePrint())
 
 		c.JSON(200, gin.H{
 			"health": "degraded",
-		})
-	})
-
-	// -- Example returning a simple call-graph with external services
-	r.GET("/monitor", func(c *gin.Context) {
-		ciid := thisServiceCIID
-		var callStack = ciid.Ciids
-
-		callStack.Push(iid.NewCiid("google/x/" + base64.StdEncoding.EncodeToString([]byte("http://www.google.com")) + "%-1s"))
-		callStack.Push(iid.NewCiid("stackoverflow/x/" + base64.StdEncoding.EncodeToString([]byte("https://stackoverflow.com")) + "%-1s"))
-		ciid.SetStack(callStack).SetEpoch(startTime)
-		c.Header("X-Instance-Id", ciid.String())
-
-		ciid.WithDecoding(func(s string) string {
-			b1, _ := base64.StdEncoding.DecodeString(s)
-			return string(b1)
-		})
-
-		log.Println("We called the following services:", ciid.PrintExtendedCiid())
-
-		c.JSON(200, gin.H{
-			"monitor": ciid.PrintExtendedCiid(),
 		})
 	})
 
@@ -78,7 +55,7 @@ func main() {
 
 func GenerateInstanceId() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		writer := &CiidResponseWriter{c.Writer, iid.NewCiid(THISSERVICE)}
+		writer := &CiidResponseWriter{c.Writer, iid.NewStdCiid(THISSERVICE)}
 		c.Writer = writer
 		c.Next()
 	}
@@ -90,8 +67,8 @@ type CiidResponseWriter struct {
 }
 
 func (w *CiidResponseWriter) WriteHeader(code int) {
-	if w.Header().Get("X-Instance-Id") == "" {
-		w.Header().Add("X-Instance-Id", w.Ciid.SetEpoch(startTime).String())
+	if w.Header().Get(iid.XINSTANCEID) == "" {
+		w.Header().Add(iid.XINSTANCEID, w.Ciid.SetEpoch(startTime).String())
 	}
 
 	w.ResponseWriter.WriteHeader(code)

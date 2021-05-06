@@ -6,46 +6,25 @@ import (
 	"github.com/xlab/treeprint"
 )
 
-// PrintCiid prints a tree representation of the complete call-graph of a
+// TreePrint prints a tree representation of the complete call-graph of a
 // Ciid
-func (ciid *Ciid) PrintCiid() string {
+func (c StdCiid) TreePrint() string {
 	tree := treeprint.New()
-	tree = ciid.visitCiid(tree)
+	tree = c.visitCiid(tree)
 	return tree.String()
 }
 
-func (c *Ciid) visitCiid(t treeprint.Tree) treeprint.Tree {
-	x := t.AddBranch(c.Miid.Sn + "/" + c.Miid.Vn)
-	if c.Miid.metadata() != "" {
-		x.SetMetaValue(strconv.Itoa(c.Miid.T) + "s")
+func (c StdCiid) visitCiid(t treeprint.Tree) treeprint.Tree {
+	x := t.AddBranch(c.miid.Sn() + "/" + c.miid.Vn())
+	if c.Miid().(StdMiid).metadata() != "" {
+		x.SetMetaValue(strconv.Itoa(c.Miid().T()) + "s")
 	}
-	for _, s := range c.Ciids {
-		s.visitCiid(x)
+	for _, s := range c.Ciids() {
+		s.(StdCiid).visitCiid(x)
 	}
 	return t
 }
 
-func (m *Miid) metadata() string {
+func (m StdMiid) metadata() string {
 	return m.String()
-}
-
-// PrintExtendedCiid prints a tree representation of the complete call-graph of a
-// Ciid, and decodes external representations
-func (ciid *Ciid) PrintExtendedCiid() string {
-	tree := treeprint.New()
-	tree = ciid.visitExtendedCiid(tree)
-	return tree.String()
-}
-
-func (c *Ciid) visitExtendedCiid(t treeprint.Tree) treeprint.Tree {
-	x := t.AddBranch(c.Miid.Sn + "/" + c.Miid.Vn)
-	if c.Miid.Vn == "x" {
-		x.SetMetaValue(c.Miid.decode(c.Miid.Va))
-	} else if c.Miid.metadata() != "" {
-		x.SetMetaValue(strconv.Itoa(c.Miid.T) + "s")
-	}
-	for _, s := range c.Ciids {
-		s.visitExtendedCiid(x)
-	}
-	return t
 }

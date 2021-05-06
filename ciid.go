@@ -5,37 +5,46 @@ import (
 	"time"
 )
 
-// Ciid represents the complete call-graph as instance-id
-type Ciid struct {
-	Miid   Miid
-	Ciids  Stack
-	decode DecodingFunction
+type StdCiid struct {
+	miid  Miid
+	ciids Stack
 }
 
 // NewCiid creates a new Ciid from a string in the form of
 // Sn1/Vn1/Va1%t1s(Sn2/Vn2/Va2%t2s+Sn3/Vn3/Va3%t3s(Sn4/Vn4/Va4%t4s))
-func NewCiid(id string) (ciid Ciid) {
+func NewStdCiid(id string) (ciid StdCiid) {
 	return parseCiid(id)
 }
 
-func (c *Ciid) WithDecoding(d DecodingFunction) *Ciid {
-	c.decode = d
-	c.Miid.WithDecoding(d)
-	for i := range c.Ciids {
-		c.Ciids[i].WithDecoding(d)
-	}
+func (c StdCiid) Miid() Miid {
+	return c.miid
+}
+
+func (c StdCiid) Ciids() Stack {
+	return c.ciids
+}
+
+func (c StdCiid) SetCiids(s Stack) Ciid {
+	c.ciids = s
 	return c
 }
 
+// SetEpoch sets the epoch field based on a given StartTime. Chainable.
+func (ciid StdCiid) SetEpoch(startTime time.Time) Ciid {
+	epoch := time.Since(startTime)
+	ciid.miid.SetT(int(epoch.Seconds()))
+	return ciid
+}
+
 // String returns the textual representation of the Ciid
-func (c *Ciid) String() string {
+func (c StdCiid) String() string {
 	sB := strings.Builder{}
-	sB.WriteString(c.Miid.String())
-	if len(c.Ciids) > 0 {
+	sB.WriteString(c.miid.String())
+	if len(c.ciids) > 0 {
 		sB.WriteString("(")
-		for i, a := range c.Ciids {
+		for i, a := range c.ciids {
 			sB.WriteString(a.String())
-			if i+1 < len(c.Ciids) {
+			if i+1 < len(c.ciids) {
 				sB.WriteString("+")
 			}
 		}
@@ -46,31 +55,50 @@ func (c *Ciid) String() string {
 }
 
 // Contains returns true if the Ciid contains the left aligned miid as part of the call graph
-func (ciid *Ciid) Contains(miid string) bool {
+func (c StdCiid) Contains(miid string) bool {
 	if miid == "" {
 		return false
 	}
-	return strings.Contains(ciid.String(), miid)
+	return strings.Contains(c.String(), miid)
 }
 
-// SetEpoch sets the epoch field based on a given StartTime. Chainable.
-func (ciid *Ciid) SetEpoch(startTime time.Time) *Ciid {
-	epoch := time.Since(startTime)
-	ciid.Miid.T = int(epoch.Seconds())
-	return ciid
-}
-
-func parseCiid(id string) (ciid Ciid) {
+func parseCiid(id string) StdCiid {
 	name, arg := seperateFNameFromArg(id)
 
-	me := Ciid{Miid: parseMIID(name)}
+	me := StdCiid{miid: parseMIID(name)}
 
 	if arg == "" {
 		return me
 	}
 
-	me.Ciids = parseArguments(arg)
+	me.ciids = parseArguments(arg)
 	return me
+}
+
+func seperateFNameFromArg(signature string) (name, arg string) {
+	n := strings.Builder{}
+	a := strings.Builder{}
+	var inArgs bool
+	var count int
+	for _, s := range signature {
+		if s == '(' {
+			count++
+			inArgs = true
+		}
+		if s == ')' {
+			count--
+		}
+
+		if !inArgs {
+			n.WriteRune(s)
+		} else if count == 1 && s != '(' {
+			a.WriteRune(s)
+		} else if count > 1 {
+			a.WriteRune(s)
+		}
+	}
+
+	return n.String(), a.String()
 }
 
 func parseArguments(arg string) (ciids []Ciid) {
@@ -121,4 +149,38 @@ func deleteEmpty(s []string) []string {
 		}
 	}
 	return r
+}
+
+// -- Stack Implementation for StdCiid
+
+// Push a new value onto the stack
+func (s *Stack) Push(str Ciid) {
+	*s = append(*s, str) // Simply append the new value to the end of the stack
+}
+
+// IsEmpty: check if stack is empty
+func (s *Stack) IsEmpty() bool {
+	return len(*s) == 0
+}
+
+// Remove and return top element of stack. Return false if stack is empty.
+func (s *Stack) Pop() (Ciid, bool) {
+	if s.IsEmpty() {
+		return nil, false
+	} else {
+		index := len(*s) - 1   // Get the index of the top most element.
+		element := (*s)[index] // Index into the slice and obtain the element.
+		*s = (*s)[:index]      // Remove it from the stack by slicing it off.
+		return element, true
+	}
+}
+
+func (m StdCiid) SetStack(callStack Stack) StdCiid {
+	m.SetCiids(callStack)
+	return m
+}
+
+func (m StdCiid) ClearStack() StdCiid {
+	m.SetCiids(nil)
+	return m
 }
