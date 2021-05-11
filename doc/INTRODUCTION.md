@@ -55,13 +55,15 @@ Describes that _service a_ calls  _service b_ and then _service c_
 
 ### External service
 
-When recording calls to external services, there is basically not much knowledge ca
+When recording calls to external services, there is not much knowledge about the instance of a service. However we might just want to cope with the fact that a service has been called.
+Several proposal have been discussed.
 
-	base62 encoded external URLs
-	Wikimedia/x/aHR0cHM6Ly9kZS53aWtpcXVvdGUub3JnL3dpa2kvS2xlb2J1bG9zX3Zvbl9MaW5kb3M%-1s
-	Google/x/aaHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvMW55SldTRkRSRkRrN3lqZEZ6bURMWkxLdk1oREVWV1c4ZUc5bUtDR2tqYlEvZWRpdCNnaWQ9MA==%-1s
-	
-	
+Currently under evaluation is:
+
+* use a service name a descriptive name
+* replace the version number by `x`
+* encode the called url in way that does not interfere with the iid encoding (bacially avoid `/`, `+` and `%`). base64 encoding **can not** be used, as it can contain `/` and `+`. 
+Instead base64url, urlencode or [base62x](https://ufqi.com/dev/base62x/) could be used. For the sake of simplicity we currently evaluate [base64url](https://de.wikipedia.org/wiki/Base64#Base64url). A simple implemenation in golang can be found [here](https://github.com/dvsekhvalnov/jose2go/blob/v1.5.0/base64url/base64url.go)
 
 ## Call Graphs
 
@@ -102,27 +104,23 @@ A **confirming** service _should_ record a called to service if, and only if the
 A service _should_ not combine or mix reporting **by expectation** and **by confirmation**.
 
 
-### A comparison of base62x, base64 and urlencode
+### A comparison of base64, base64url and urlencode
 
 base64: 	https://www.base64encode.org/
 urlencode: 	https://www.urlencoder.org/
-base62x: 	https://ufqi.com/dev/base62x/
 
 Referenz:
 
 	plain: 		https://de.wikiquote.org/wiki/Kleobulos_von_Lindos
 	base64: 	aHR0cHM6Ly9kZS53aWtpcXVvdGUub3JnL3dpa2kvS2xlb2J1bG9zX3Zvbl9MaW5kb3M=
 	urlencode: 	https%3A%2F%2Fde.wikiquote.org%2Fwiki%2FKleobulos_von_Lindos
-	base62x:	httpsxhxgxgdexfwikiquotexforgxgwikixgKleobulosxsvonxsLindosx
 
 
 	plain:		https://docs.google.com/spreadsheets/d/1nyJWSFDRFDk7yjdFzmDLZLKvMhDEVWW8eG9mKCGkjbQ/edit#gid=0
 	base64: 	aaHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvMW55SldTRkRSRkRrN3lqZEZ6bURMWkxLdk1oREVWV1c4ZUc5bUtDR2tqYlEvZWRpdCNnaWQ9MA==
 	urlencode: 	https%3A%2F%2Fdocs.google.com%2Fspreadsheets%2Fd%2F1nyJWSFDRFDk7yjdFzmDLZLKvMhDEVWW8eG9mKCGkjbQ%2Fedit%23gid%3D0
-	base62x:	httpsxhxgxgdocsxfgooglexfcomxgspreadsheetsxgdxg1nyJWSFDRFDk7yjdFzmDLZLKvMhDEVWW8eG9mKCGkjbQxgeditxUgidxk0x
 
 
 	plain:		https://www.google.com/search?client=firefox-b-d&q=example+query+parameters+url
 	base64: 	aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9zZWFyY2g/Y2xpZW50PWZpcmVmb3gtYi1kJnE9ZXhhbXBsZStxdWVyeStwYXJhbWV0ZXJzK3VybA==
 	urlencode: 	https%3A%2F%2Fwww.google.com%2Fsearch%3Fclient%3Dfirefox-b-d%26q%3Dexample%2Bquery%2Bparameters%2Burl
-	base62x:	httpsxhxgxgwwwxfgooglexfcomxgsearchxmclientxkfirefoxxxebxedxXqxkexxamplexcqueryxcparametersxcurlx
