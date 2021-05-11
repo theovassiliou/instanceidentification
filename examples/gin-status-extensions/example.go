@@ -1,23 +1,34 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	log "github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
 
+	ix "github.com/theovassiliou/instanceidentification/examples/gin-status-extensions/instanceidextended"
+
 	iid "github.com/theovassiliou/instanceidentification"
 )
 
-// Default MIID of this service
-const THISSERVICE = "ourService/1.1%-1s"
-
-var startTime time.Time
 var thisServiceCIID iid.Ciid
 
+const VERSION = "0.1-src"
+
+//set this via ldflags (see https://stackoverflow.com/q/11354518)
+// version is the current version number as tagged via git tag 1.0.0 -m 'A message'
+var (
+	version   = VERSION
+	commit    = ""
+	branch    = ""
+	cmdName   = "ginstatus-vbc"
+	startTime time.Time
+)
+
 func init() {
-	thisServiceCIID = iid.NewStdCiid(THISSERVICE)
+	thisServiceCIID = ix.NewExtCiid(cmdName, version, branch, commit)
 	startTime = time.Now()
 }
 
@@ -29,6 +40,7 @@ func main() {
 
 	// -- Example returning only default MIID as CIID
 	r.GET("/status", func(c *gin.Context) {
+		fmt.Println(c.Request.Header)
 		c.JSON(200, gin.H{
 			"status": "running",
 		})
@@ -55,7 +67,7 @@ func main() {
 
 func GenerateInstanceId() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		writer := &CiidResponseWriter{c.Writer, iid.NewStdCiid(THISSERVICE)}
+		writer := &CiidResponseWriter{c.Writer, ix.NewExtCiid(cmdName, version, branch, commit)}
 		c.Writer = writer
 		c.Next()
 	}
@@ -68,7 +80,10 @@ type CiidResponseWriter struct {
 
 func (w *CiidResponseWriter) WriteHeader(code int) {
 	if w.Header().Get(iid.XINSTANCEID) == "" {
-		w.Header().Add(iid.XINSTANCEID, w.Ciid.SetEpoch(startTime).String())
+		fmt.Println(w.Ciid)
+		w.Ciid.SetEpoch(startTime)
+		fmt.Println(w.Ciid)
+		w.Header().Add(iid.XINSTANCEID, w.Ciid.String())
 	}
 
 	w.ResponseWriter.WriteHeader(code)

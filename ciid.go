@@ -12,7 +12,7 @@ type StdCiid struct {
 
 // NewCiid creates a new Ciid from a string in the form of
 // Sn1/Vn1/Va1%t1s(Sn2/Vn2/Va2%t2s+Sn3/Vn3/Va3%t3s(Sn4/Vn4/Va4%t4s))
-func NewStdCiid(id string) (ciid StdCiid) {
+func NewStdCiid(id string) (ciid *StdCiid) {
 	return parseCiid(id)
 }
 
@@ -24,13 +24,13 @@ func (c StdCiid) Ciids() Stack {
 	return c.ciids
 }
 
-func (c StdCiid) SetCiids(s Stack) Ciid {
+func (c *StdCiid) SetCiids(s Stack) Ciid {
 	c.ciids = s
 	return c
 }
 
 // SetEpoch sets the epoch field based on a given StartTime. Chainable.
-func (ciid StdCiid) SetEpoch(startTime time.Time) Ciid {
+func (ciid *StdCiid) SetEpoch(startTime time.Time) Ciid {
 	epoch := time.Since(startTime)
 	ciid.miid.SetT(int(epoch.Seconds()))
 	return ciid
@@ -62,10 +62,11 @@ func (c StdCiid) Contains(miid string) bool {
 	return strings.Contains(c.String(), miid)
 }
 
-func parseCiid(id string) StdCiid {
+func parseCiid(id string) *StdCiid {
+	me := new(StdCiid)
 	name, arg := seperateFNameFromArg(id)
 
-	me := StdCiid{miid: parseMIID(name)}
+	me.miid = parseMIID(name)
 
 	if arg == "" {
 		return me
@@ -101,7 +102,7 @@ func seperateFNameFromArg(signature string) (name, arg string) {
 	return n.String(), a.String()
 }
 
-func parseArguments(arg string) (ciids []Ciid) {
+func parseArguments(arg string) (ciids Stack) {
 	ss := splitOnPlus(arg)
 
 	for _, a := range ss {

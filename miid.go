@@ -13,7 +13,7 @@ type StdMiid struct {
 	t  int
 }
 
-func NewStdMiid(s string) StdMiid {
+func NewStdMiid(s string) *StdMiid {
 	return parseMIID(s)
 }
 
@@ -33,13 +33,13 @@ func (m StdMiid) T() int {
 	return m.t
 }
 
-func (m StdMiid) SetT(t int) Miid {
+func (m *StdMiid) SetT(t int) Miid {
 	m.t = t
 	return m
 }
 
 // String returns the textual representation of the Miid
-func (m StdMiid) String() string {
+func (m *StdMiid) String() string {
 	sB := strings.Builder{}
 	if m.sn != "" {
 		sB.WriteString(m.sn)
@@ -63,19 +63,20 @@ func (m StdMiid) Contains(s string) bool {
 }
 
 // SetEpoch sets the epoch field based on a given StartTime. Chainable.
-func (m StdMiid) SetEpoch(startTime time.Time) Miid {
+func (m *StdMiid) SetEpoch(startTime time.Time) Miid {
 	epoch := time.Since(startTime)
 	m.t = int(epoch.Seconds())
 	return m
 }
 
-func parseMIID(id string) (miid StdMiid) {
+func parseMIID(id string) (miid *StdMiid) {
+	miid = new(StdMiid)
 	if !SanityCheck(id) {
 		return miid
 	}
 	s := strings.SplitN(id, "/", -1)
 	l := len(s)
-	var r StdMiid
+	var r = new(StdMiid)
 	if l >= 1 {
 		r.sn = s[0]
 	}
