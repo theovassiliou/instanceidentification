@@ -1,0 +1,30 @@
+<!--index.html-->
+
+<!--Embed the header.html template at this location-->
+{{ template "header.html" .}}
+
+  <h1>Base64url Trial page!</h1>
+
+
+<form action="encodestring" method="post" target="_blank">
+  <label for="stringtoencode">String to Encode:</label>
+  <input type="text" id="stringtoencode" name="stringtoencode" placeholder="Printable string"
+           size="128"><br><br>
+  <input type="submit" value="Submit">
+</form>
+
+<form action="decodestring" method="post" target="_blank">
+  <label for="stringtodecode">First name:</label>
+  <input type="text" id="stringtodecode" name="stringtodecode" placeholder="base64url encoded string" size ="128"><br><br>
+  <input type="submit" value="Submit">
+</form>
+</p>
+<form action="verify" method="post" target="_blank">
+  <label for="stringtoencode">String to Encode:</label>
+  <input type="text" id="stringtoencode" name="stringtoencode" placeholder="Printable string"
+           size="128"><br><br>
+  <input type="submit" value="Submit">
+</form>
+
+<!--Embed the footer.html template at this location-->
+{{ template "footer.html" .}}
