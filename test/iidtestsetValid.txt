@@ -1,0 +1,47 @@
+###### MIID ########
+# regular input, different version
+a/1%1s
+a/v1%1s
+a/1.1%1s
+a/v1.2.3%1s
+
+# regular input, different epoch
+msa/1.1%-1s
+msa/1.1%0s
+msa/1.1%1s
+msa/1.1%100s
+msa/1%1234s
+msa/中%123s
+
+# regular input, different service name
+a/1.1%1234s
+ab/1.1%1234s
+abc/1.1%1234s
+€/1.1%1234s
+ä/1.1%1234s
+中/1.1%123s
+
+# regular input, additional information
+msa/1.1/additionalinformation%1s
+msa/1.1/additiona-linformation%1s
+msa/1.1/additiona--linformation%1s
+msa/1.1/additiona#linformation%1s
+msa/1.1/additional/information%1s
+msa/1.1/additional=information%1s
+MsA/1.1/xxx%22s
+
+###### CIID ########
+msa/1.1%11s
+msb/2.2%22s
+msc/3.3%33s
+msd/4.4%44s
+
+# regular input, additional information
+msa/1.1%11s(msb/2.2%22s)
+msa/1.1%11s(msb/2.2%22s+msc/3.3%33s)
+msa/1.1%11s(msb/2.2%22s(msc/3.3%33s+msd/4.4%44s))
+msa/1.1%11s(msb/2.2%22s(msc/3.3%33s)+msd/4.4%44s)
+
+MsA/1.1/xxx%22s(msC/1.4%5555s+msD/2.2%23234s)
+MsA/1.1/dev-git22%88s(msC/1.4%5555s+msD/2.2%23234s)
+DE.TU-BERLIN.ECHO/1.1/main-352e3bf%397s

@@ -68,7 +68,7 @@ func parseCiid(id string) *StdCiid {
 
 	me.miid = parseMIID(name)
 
-	if arg == "" {
+	if arg == "" || strings.Contains(arg, "+") {
 		return me
 	}
 

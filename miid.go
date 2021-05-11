@@ -103,8 +103,10 @@ func parseMIID(id string) (miid *StdMiid) {
 		va.WriteString(e[0])
 		r.va = va.String()
 
-		t, _ := strconv.Atoi(strings.Split(e[1], "s")[0])
-		r.t = t
+		t, err := strconv.Atoi(strings.Split(e[1], "s")[0])
+		if err == nil {
+			r.t = t
+		}
 	}
 
 	return r
@@ -114,6 +116,10 @@ func parseMIID(id string) (miid *StdMiid) {
 // returns true if miid could be an Miid false otherwise
 func SanityCheck(miid string) bool {
 	miid = strings.TrimSpace(miid)
+
+	if !strings.Contains(miid, "%") {
+		return false
+	}
 
 	// last rune must be s
 	if !strings.HasSuffix(miid, "s") {

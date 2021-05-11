@@ -1,8 +1,11 @@
 package instanceid
 
 import (
-	"io/ioutil"
+	"bufio"
+	"fmt"
+	"os"
 	"reflect"
+	"strings"
 	"testing"
 
 	log "github.com/sirupsen/logrus"
@@ -178,56 +181,6 @@ func Test_parseMIID(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if gotCiid := parseMIID(tt.args.id); !reflect.DeepEqual(gotCiid, tt.wantMiid) {
 				t.Errorf("parseMIID() = %#v, want %#v", gotCiid, tt.wantMiid)
-			}
-		})
-	}
-}
-
-func Test_parseMIIDFromFile(t *testing.T) {
-	type args struct {
-		fileName string
-	}
-
-	log.SetLevel(log.TraceLevel)
-	tests := []struct {
-		name     string
-		args     args
-		wantMiid Miid
-	}{
-		{
-			"complex1",
-			args{"test/instanceId1.txt"},
-			&StdMiid{},
-		},
-		{
-			"complex2",
-			args{"test/miid1.txt"},
-			&StdMiid{
-				sn: "MsA",
-				vn: "1.1",
-				va: "xxx",
-				t:  22,
-			},
-		},
-		{
-			"Nonsens",
-			args{"README.md"},
-			&StdMiid{
-				sn: "",
-				vn: "",
-				va: "",
-				t:  0,
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			file, err := ioutil.ReadFile(tt.args.fileName)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if gotMiid := parseMIID(string(file)); !reflect.DeepEqual(gotMiid, tt.wantMiid) {
-				t.Errorf("parseMIID() = %v, want %v", gotMiid, tt.wantMiid)
 			}
 		})
 	}
@@ -1045,4 +998,102 @@ func TestCiid_Contains(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestReversibleCiid(t *testing.T) {
+	fileName := "test/iidtestsetValid.txt"
+	file, err := os.Open(fileName)
+
+	if err != nil {
+		t.Errorf("failed to open: %v", fileName)
+
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+	i := 0
+	for scanner.Scan() {
+		i++
+		ttwant := scanner.Text()
+		ttname := fmt.Sprintf("[%v:%v]", fileName, i)
+		// Filtering # comments and empty lines
+		if strings.HasPrefix(ttwant, "#") || ttwant == "" {
+			continue
+		}
+		t.Run(ttname, func(t *testing.T) {
+			m := NewStdCiid(ttwant)
+			if got := m.String(); got != ttwant {
+				t.Errorf("Iid not reversible = %v, want %v", got, ttwant)
+			}
+		})
+	}
+
+}
+
+func TestInvalidCiid(t *testing.T) {
+	fileName := "test/iidtestsetInvalid.txt"
+	file, err := os.Open(fileName)
+
+	if err != nil {
+		t.Errorf("failed to open: %v", fileName)
+
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+	i := 0
+	for scanner.Scan() {
+		i++
+		invalidIid := scanner.Text()
+		ttname := fmt.Sprintf("[%v:%v]", fileName, i)
+		// Filtering # comments and empty lines
+		if strings.HasPrefix(invalidIid, "#") || invalidIid == "" {
+			continue
+		}
+		t.Run(ttname, func(t *testing.T) {
+			m := NewStdCiid(invalidIid)
+			if got := m.String(); got != "" {
+				t.Errorf("Iid should not be parseble. Parsed to %v", got)
+			}
+		})
+	}
+
+}
+
+func TestInOppCiid(t *testing.T) {
+	fileName := "test/iidtestsetInopportune.txt"
+	file, err := os.Open(fileName)
+
+	if err != nil {
+		t.Errorf("failed to open: %v", fileName)
+
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+	i := 0
+	for scanner.Scan() {
+		i++
+		inputLine := scanner.Text()
+		ttname := fmt.Sprintf("[%v:%v]", fileName, i)
+		// Filtering # comments and empty lines
+		if strings.HasPrefix(inputLine, "#") || inputLine == "" {
+			continue
+		}
+
+		ttInput := strings.Split(inputLine, "-->")[0]
+		ttInput = strings.TrimSpace(ttInput)
+		ttWant := strings.Split(inputLine, "-->")[1]
+		ttWant = strings.TrimSpace(ttWant)
+		t.Run(ttname, func(t *testing.T) {
+			m := NewStdCiid(ttInput)
+			if got := m.String(); got != ttWant {
+				t.Errorf("Iid not inopportune = %v, want %v", got, ttWant)
+			}
+		})
+	}
+
 }
