@@ -3,28 +3,37 @@
 <!--Embed the header.html template at this location-->
 {{ template "header.html" .}}
 
-  <h1>Base64url Trial page!</h1>
+  <h1>Trial page!</h1>
 
 
-<form action="encodestring" method="post" target="_blank">
-  <label for="stringtoencode">String to Encode:</label>
-  <input type="text" id="stringtoencode" name="stringtoencode" placeholder="Printable string"
-           size="128"><br><br>
-  <input type="submit" value="Submit">
-</form>
+<table border="1" cellpadding="1" cellspacing="1" style="width:50%;background-color:#cccccc;border-collapse:collapse;border:1px solid #ffcc00">
+	<tbody>
+		<tr>
+      <form action="encodestring" method="post" target="_blank">
+        <td><label for="stringtoencode">String to Encode:</label></td>
+        <td><input type="text" id="stringtoencode" name="stringtoencode" placeholder="Printable string"
+           size="128"></td>
+        <td><input type="submit" value="Submit"></td>
+      </form>
+		</tr>
+	  <tr>
 
-<form action="decodestring" method="post" target="_blank">
-  <label for="stringtodecode">First name:</label>
-  <input type="text" id="stringtodecode" name="stringtodecode" placeholder="base64url encoded string" size ="128"><br><br>
-  <input type="submit" value="Submit">
-</form>
-</p>
-<form action="verify" method="post" target="_blank">
-  <label for="stringtoencode">String to Encode:</label>
-  <input type="text" id="stringtoencode" name="stringtoencode" placeholder="Printable string"
-           size="128"><br><br>
-  <input type="submit" value="Submit">
-</form>
+    <form action="decodestring" method="post" target="_blank">
+      <td><label for="stringtodecode">String to Decode:</label></td>
+      <td><input type="text" id="stringtodecode" name="stringtodecode" placeholder="base64url encoded string" size ="128"></td>
+      <td><input type="submit" value="Submit"></td>
+    </form>
+    </tr>
+    <tr>
+    <form action="verify" method="post" target="_blank">
+      <td><label for="stringtoeencode">Analyze String properties:</label></td>
+      <td><input type="text" id="stringtoencode" name="stringtoencode" placeholder="Printable string"
+              size="128"></td>
+      <td><input type="submit" value="Submit"></td>
+    </form>
+    </tr>
+	</tbody>
+</table>        
 
 <!--Embed the footer.html template at this location-->
 {{ template "footer.html" .}}

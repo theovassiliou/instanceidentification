@@ -29,16 +29,12 @@ func main() {
 	r.Use(GenerateInstanceId())
 
 	r.GET("/", func(c *gin.Context) {
-
-		// Call the HTML method of the Context to render a template
 		c.HTML(
-			// Set the HTTP status to 200 (OK)
 			http.StatusOK,
-			// Use the index.html template
 			"index.html",
-			// Pass the data that the page uses (in this case, 'title')
 			gin.H{
-				"title": "Home Page",
+				"title":       "Home Page",
+				"xinstanceid": thisServiceCIID.SetEpoch(startTime).String(),
 			},
 		)
 
@@ -48,7 +44,6 @@ func main() {
 		fmt.Println()
 		s, exists := c.GetPostForm("stringtoencode")
 		if exists {
-			base64url.Encode([]byte(s))
 			c.JSON(200, gin.H{
 				"encodedstring": base64url.Encode([]byte(s)),
 				"x-instance-id": thisServiceCIID.SetEpoch(startTime).String(),
@@ -60,9 +55,11 @@ func main() {
 		b, exists := c.GetPostForm("stringtodecode")
 		if exists {
 			s, _ := base64url.Decode(b)
+			xiid := thisServiceCIID.SetEpoch(startTime)
 			c.JSON(200, gin.H{
 				"decodedstring": string(s),
-				"x-instance-id": thisServiceCIID.SetEpoch(startTime).String(),
+				"x-instance-id": xiid.String(),
+				"deciid":        xiid,
 			})
 		}
 	})
@@ -71,6 +68,8 @@ func main() {
 	r.POST("/verify", func(c *gin.Context) {
 		s, exists := c.GetPostForm("stringtoencode")
 		if exists {
+			xiid := thisServiceCIID.SetEpoch(startTime)
+			fmt.Printf("%#v", xiid.Miid())
 			encoded := base64url.Encode([]byte(s))
 			encodedDecoded, _ := base64url.Decode(encoded)
 			c.HTML(http.StatusOK, "verify.tmpl", gin.H{
@@ -78,7 +77,11 @@ func main() {
 				"stringencoded":        encoded,
 				"stringencodeddecoded": string(encodedDecoded),
 				"equaling":             s == string(encodedDecoded),
-				"xinstanceid":          thisServiceCIID.SetEpoch(startTime).String(),
+				"xinstanceid":          xiid.String(),
+				"sn":                   xiid.Miid().Sn(),
+				"vn":                   xiid.Miid().Vn(),
+				"va":                   xiid.Miid().Va(),
+				"epoch":                xiid.Miid().T(),
 			})
 		}
 	})
