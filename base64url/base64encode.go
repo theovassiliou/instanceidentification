@@ -2,7 +2,10 @@
 package base64url
 
 import (
+	"bytes"
+	"compress/gzip"
 	"encoding/base64"
+	"io"
 	"strings"
 )
 
@@ -30,4 +33,46 @@ func Encode(data []byte) string {
 	result = strings.Replace(result, "=", "", -1)  // Remove any trailing '='s
 
 	return result
+}
+
+// Decompress decompresses a given byte array uzing gzip
+func Decompress(data []byte) (decompData []byte, err error) {
+	b := bytes.NewBuffer(data)
+
+	var r io.Reader
+	r, err = gzip.NewReader(b)
+	if err != nil {
+		return
+	}
+
+	var resB bytes.Buffer
+	_, err = resB.ReadFrom(r)
+	if err != nil {
+		return
+	}
+
+	decompData = resB.Bytes()
+
+	return
+}
+
+// Compresse compresses a given byte array using gzip.
+func Compress(data []byte) (compressedData []byte, err error) {
+	var b bytes.Buffer
+	gz := gzip.NewWriter(&b)
+
+	_, err = gz.Write(data)
+	if err != nil {
+		return
+	}
+
+	if err = gz.Flush(); err != nil {
+		return
+	}
+
+	if err = gz.Close(); err != nil {
+		return
+	}
+	compressedData = b.Bytes()
+	return
 }
