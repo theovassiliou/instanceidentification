@@ -1,9 +1,20 @@
 # invalid input
 MsA/1.1/xxx%22s+msB/2.0.1/yyyy%444s+(msC/1.4%5555s+msD/2.2%23234s)
+MsA/1.1/xxx%22s+msB/2.0.1/yyyy%444s
+HelloWorld
+This is a test
 
-msa/1.1/additionalinformation
+# invalid epochs, no %
+msa/1.1/additionalinformation/2s
 msa/1.1/additionalinformation/1
 msa/1.1/additionalinformation/xs
+
+# invalid epochs, no or bad formatted epoch
+msa/1.1/additionalinformation
+msa/1.1/additionalinformation%1
+msa/1.1/additionalinformation%xs
+
+# missing version
 DE.TU-BERLIN.ECHO//main-352e3bf/397s
 
 # an CIID can not be simply concatinated with a plus
