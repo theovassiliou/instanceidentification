@@ -1055,43 +1055,7 @@ func TestInvalidCiid(t *testing.T) {
 		t.Run(ttname, func(t *testing.T) {
 			m := NewStdCiid(invalidIid)
 			if got := m.String(); got != "" {
-				t.Errorf("Iid should not be parseble. Parsed to %v", got)
-			}
-		})
-	}
-
-}
-
-func TestInOppCiid(t *testing.T) {
-	fileName := "test/iidtestsetInopportune.txt"
-	file, err := os.Open(fileName)
-
-	if err != nil {
-		t.Errorf("failed to open: %v", fileName)
-
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
-	i := 0
-	for scanner.Scan() {
-		i++
-		inputLine := scanner.Text()
-		ttname := fmt.Sprintf("[%v:%v]", fileName, i)
-		// Filtering # comments and empty lines
-		if strings.HasPrefix(inputLine, "#") || inputLine == "" {
-			continue
-		}
-
-		ttInput := strings.Split(inputLine, "-->")[0]
-		ttInput = strings.TrimSpace(ttInput)
-		ttWant := strings.Split(inputLine, "-->")[1]
-		ttWant = strings.TrimSpace(ttWant)
-		t.Run(ttname, func(t *testing.T) {
-			m := NewStdCiid(ttInput)
-			if got := m.String(); got != ttWant {
-				t.Errorf("Iid not inopportune = %v, want %v", got, ttWant)
+				t.Errorf("Iid %v should not be parseble. Parsed to %v", invalidIid, got)
 			}
 		})
 	}

@@ -76,6 +76,7 @@ func parseMIID(id string) (miid *StdMiid) {
 	}
 	s := strings.SplitN(id, "/", -1)
 	l := len(s)
+
 	var r = new(StdMiid)
 	if l >= 1 {
 		r.sn = s[0]
@@ -84,7 +85,11 @@ func parseMIID(id string) (miid *StdMiid) {
 		e := strings.Split(s[1], "%")
 		r.vn = e[0]
 		if len(e) > 1 {
-			t, _ := strconv.Atoi(strings.Split(e[1], "s")[0])
+			t, err := strconv.Atoi(strings.Split(e[1], "s")[0])
+			if err != nil {
+				return miid
+			}
+
 			r.t = t
 		}
 	} else if l >= 2 {
@@ -106,6 +111,8 @@ func parseMIID(id string) (miid *StdMiid) {
 		t, err := strconv.Atoi(strings.Split(e[1], "s")[0])
 		if err == nil {
 			r.t = t
+		} else {
+			return miid
 		}
 	}
 
