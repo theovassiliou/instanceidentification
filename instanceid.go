@@ -71,6 +71,9 @@ type IidRequest interface {
 	// Options returns the options set
 	Options() Options
 
+	// HasOptions returns true, in case options have been indicated, false otherwise
+	HasOptions() bool
+
 	// SetOption sets an option for the Iid-Request header. Chainable
 	SetOption(Option) IidRequest
 

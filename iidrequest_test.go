@@ -139,7 +139,7 @@ func TestNewIRequestFromValueValid(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewIRequestFromValue(tt.args.v); !reflect.DeepEqual(got, tt.want) {
+			if got := NewIRequestFromString(tt.args.v); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewIRequestFromValue() = %#v, want %#v", got, tt.want)
 			}
 		})
@@ -215,10 +215,20 @@ func TestNewIRequestFromValueInvalid(t *testing.T) {
 				options: map[string]Option{},
 			},
 		},
+		{
+			name: "no valid input",
+			args: args{
+				v: "asdf",
+			},
+			want: &IRequest{
+				key:     "empty",
+				options: map[string]Option{},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewIRequestFromValue(tt.args.v); !reflect.DeepEqual(got, tt.want) {
+			if got := NewIRequestFromString(tt.args.v); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewIRequestFromValue() = %#v, want %+v", got, tt.want)
 			}
 		})
@@ -533,6 +543,12 @@ func TestIRequest_String(t *testing.T) {
 				},
 			},
 			want: "empty options=csv",
+		}, {
+			name: "invalid options",
+			fields: fields{
+				options: Options{},
+			},
+			want: "empty",
 		},
 	}
 	for _, tt := range tests {
@@ -707,26 +723,6 @@ func TestIOption_Command(t *testing.T) {
 	}
 }
 
-func TestNewIRequestFromValue(t *testing.T) {
-	type args struct {
-		v string
-	}
-	tests := []struct {
-		name string
-		args args
-		want *IRequest
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := NewIRequestFromValue(tt.args.v); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewIRequestFromValue() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func Test_parseOption(t *testing.T) {
 	type args struct {
 		id string
@@ -769,6 +765,117 @@ func Test_parseOption(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := parseOption(tt.args.id); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("parseOption() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIRequest_HasOptions(t *testing.T) {
+
+	v := IOption{commandName: "v"}
+	c := IOption{commandName: "c"}
+	// s := IOption{commandName: "s"}
+
+	type fields struct {
+		key     string
+		options Options
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   bool
+	}{
+		{
+			name: "empty Options",
+			fields: fields{
+				key:     "",
+				options: Options{},
+			},
+			want: false,
+		},
+		{
+			name: "nil Options",
+			fields: fields{
+				key:     "",
+				options: nil,
+			},
+			want: false,
+		},
+		{
+			name: "one Option",
+			fields: fields{
+				key: "",
+				options: Options{
+					"v": v,
+				},
+			},
+			want: true,
+		},
+		{
+			name: "two Options",
+			fields: fields{
+				key: "",
+				options: Options{
+					"v": v,
+					"c": c,
+				},
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := IRequest{
+				key:     tt.fields.key,
+				options: tt.fields.options,
+			}
+			if got := r.HasOptions(); got != tt.want {
+				t.Errorf("IRequest.HasOptions() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNewIRequestFromValue(t *testing.T) {
+	type args struct {
+		v string
+	}
+	tests := []struct {
+		name string
+		args args
+		want *IRequest
+	}{
+		// NOTE: Covered in other test cases
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewIRequestFromString(tt.args.v); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewIRequestFromValue() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIRequest_GetHeader(t *testing.T) {
+	type fields struct {
+		key     string
+		options Options
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		// NOTE: Covered somewhere else
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := IRequest{
+				key:     tt.fields.key,
+				options: tt.fields.options,
+			}
+			if got := r.GetHeader(); got != tt.want {
+				t.Errorf("IRequest.GetHeader() = %v, want %v", got, tt.want)
 			}
 		})
 	}

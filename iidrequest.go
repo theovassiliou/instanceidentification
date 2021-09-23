@@ -19,8 +19,8 @@ func (o IOption) Command() string {
 	return o.commandName
 }
 
-// NewIRequestFromValue creates a new IRequest from a value header passed as string
-func NewIRequestFromValue(v string) *IRequest {
+// NewIRequestFromString creates a new IRequest from a value header passed as string
+func NewIRequestFromString(v string) *IRequest {
 	r := &IRequest{
 		key: "empty",
 	}
@@ -49,6 +49,11 @@ func (r IRequest) Options() Options {
 	return r.options
 }
 
+// HasOptions returns true, in case options have been indicated, false otherwise
+func (r IRequest) HasOptions() bool {
+	return r.options != nil && len(r.options) > 0
+}
+
 // SetOption sets an option for the Iid-Request header. Chainable
 func (r *IRequest) SetOption(o Option) IidRequest {
 	if o != nil {
@@ -69,7 +74,7 @@ func (r IRequest) String() string {
 		sB.WriteString(" ")
 	}
 
-	if r.options != nil {
+	if r.options != nil && (len(r.options) > 0) {
 		sB.WriteString("options=")
 
 		keys := make([]string, 0, len(r.options))
