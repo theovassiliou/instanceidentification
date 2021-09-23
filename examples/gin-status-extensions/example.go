@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -67,10 +68,34 @@ func main() {
 
 func GenerateInstanceId() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		writer := &CiidResponseWriter{c.Writer, ix.NewExtCiid(cmdName, version, branch, commit)}
-		c.Writer = writer
+		if c.Request.Header[iid.XINSTANCEID] != nil {
+			ir := iid.NewIRequestFromString(strings.Join(c.Request.Header[iid.XINSTANCEID], " "))
+			log.Println("X-Instance-Id header included:\n")
+			log.Printf("The canonical-header: %v", ir.GetHeader())
+
+			if checkAuthorisationKey(ir) {
+				log.Println("Authorisation key valid")
+				writer := &CiidResponseWriter{c.Writer, ix.NewExtCiid(cmdName, version, branch, commit)}
+				c.Writer = writer
+			} else {
+				log.Println("Authorisation key NOT VALID")
+
+			}
+
+		} else {
+			log.Printf("No X-Instance-Id header included\n")
+		}
+
 		c.Next()
 	}
+}
+
+func checkAuthorisationKey(ir iid.IidRequest) bool {
+	if ir.GetIidAuth() == "empty" || ir.GetIidAuth() == "masterkey" {
+		return true
+	}
+
+	return false
 }
 
 type CiidResponseWriter struct {
@@ -79,6 +104,7 @@ type CiidResponseWriter struct {
 }
 
 func (w *CiidResponseWriter) WriteHeader(code int) {
+
 	if w.Header().Get(iid.XINSTANCEID) == "" {
 		fmt.Println(w.Ciid)
 		w.Ciid.SetEpoch(startTime)
