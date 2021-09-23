@@ -74,6 +74,9 @@ type IidRequest interface {
 	// HasOptions returns true, in case options have been indicated, false otherwise
 	HasOptions() bool
 
+	// HasKey returns true, if a key element was present. False if empty, or no keys at all
+	HasKey() bool
+
 	// SetOption sets an option for the Iid-Request header. Chainable
 	SetOption(Option) IidRequest
 

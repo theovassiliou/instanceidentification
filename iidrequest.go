@@ -54,6 +54,11 @@ func (r IRequest) HasOptions() bool {
 	return r.options != nil && len(r.options) > 0
 }
 
+// HasKey returns true, if a key element was present. False if empty, or no keys at all
+func (r IRequest) HasKey() bool {
+	return r.key != "empty" && r.key != ""
+}
+
 // SetOption sets an option for the Iid-Request header. Chainable
 func (r *IRequest) SetOption(o Option) IidRequest {
 	if o != nil {

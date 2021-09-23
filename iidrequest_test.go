@@ -889,3 +889,80 @@ func TestIRequest_GetHeader(t *testing.T) {
 		})
 	}
 }
+
+func TestNewIRequestFromString(t *testing.T) {
+	type args struct {
+		v string
+	}
+	tests := []struct {
+		name string
+		args args
+		want *IRequest
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewIRequestFromString(tt.args.v); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewIRequestFromString() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIRequest_HasKey(t *testing.T) {
+	type fields struct {
+		key     string
+		options Options
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   bool
+	}{
+		{
+			name: "empty",
+			fields: fields{
+				key:     "empty",
+				options: map[string]Option{},
+			},
+			want: false,
+		},
+		{
+			name: "none",
+			fields: fields{
+				key:     "",
+				options: map[string]Option{},
+			},
+			want: false,
+		},
+
+		{
+			name: "key 1",
+			fields: fields{
+				key:     "key=1234",
+				options: map[string]Option{},
+			},
+			want: true,
+		},
+		{
+			name: "key 2",
+			fields: fields{
+				key:     "asdf-asdf-asdf-asdf",
+				options: map[string]Option{},
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := IRequest{
+				key:     tt.fields.key,
+				options: tt.fields.options,
+			}
+			if got := r.HasKey(); got != tt.want {
+				t.Errorf("IRequest.HasKey() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

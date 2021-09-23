@@ -73,7 +73,7 @@ func GenerateInstanceId() gin.HandlerFunc {
 			log.Println("X-Instance-Id header included:\n")
 			log.Printf("The canonical-header: %v", ir.GetHeader())
 
-			if checkAuthorisationKey(ir) {
+			if ir.HasKey() && checkAuthorisationKey(ir) {
 				log.Println("Authorisation key valid")
 				writer := &CiidResponseWriter{c.Writer, ix.NewExtCiid(cmdName, version, branch, commit)}
 				c.Writer = writer
@@ -91,7 +91,7 @@ func GenerateInstanceId() gin.HandlerFunc {
 }
 
 func checkAuthorisationKey(ir iid.IidRequest) bool {
-	if ir.GetIidAuth() == "empty" || ir.GetIidAuth() == "masterkey" {
+	if ir.GetIidAuth() == "masterkey" {
 		return true
 	}
 
