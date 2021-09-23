@@ -50,3 +50,33 @@ type Miid interface {
 	// Sets the epoch to now, with time being startTime of service. Chainable
 	SetEpoch(time.Time) Miid
 }
+
+// An IID-Request Option
+type Option interface {
+	Command() string
+}
+
+// A collection of IID-Request options
+type Options map[string]Option
+type IidRequest interface {
+
+	// SetIidAuth set's the authorisation key value. Chainable
+	// Value xyz is included literally as key=xyz
+	// If empty string is passed no authorisation key will be send
+	SetIidAuth(string) IidRequest
+
+	// GetIidAuth returns the authorisation key value, or an empty string if not set.
+	GetIidAuth() string
+
+	// Options returns the options set
+	Options() Options
+
+	// SetOption sets an option for the Iid-Request header. Chainable
+	SetOption(Option) IidRequest
+
+	// String returns the canonical iid-request value string represenation
+	String() string
+
+	// GetHeader returns the canonical iid-request Header string represenation
+	GetHeader() string
+}
