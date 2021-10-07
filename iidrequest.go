@@ -62,6 +62,9 @@ func (r IRequest) HasKey() bool {
 // SetOption sets an option for the Iid-Request header. Chainable
 func (r *IRequest) SetOption(o Option) IidRequest {
 	if o != nil {
+		if r.options == nil {
+			r.options = Options{}
+		}
 		r.options[o.Command()] = o
 	}
 	return r
