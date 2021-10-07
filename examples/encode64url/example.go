@@ -7,8 +7,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/theovassiliou/base64url"
 	iid "github.com/theovassiliou/instanceidentification"
-	"github.com/theovassiliou/instanceidentification/base64url"
 )
 
 // Default MIID of this service
