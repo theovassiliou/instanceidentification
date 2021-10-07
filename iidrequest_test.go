@@ -1,6 +1,7 @@
 package instanceid
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -965,4 +966,56 @@ func TestIRequest_HasKey(t *testing.T) {
 			}
 		})
 	}
+}
+
+func ExampleNewIRequestFromString_Simplest() {
+	// Create a new Request object with no auth key and some options
+	iir := NewIRequestFromString("")
+
+	fmt.Println("String: " + iir.String())
+	fmt.Println("IdAuth: " + iir.GetIidAuth())
+	fmt.Println("Header: " + iir.GetHeader())
+
+	// Output:
+	// String: empty
+	// IdAuth: empty
+	// Header: X-Instance-Id: empty
+}
+func ExampleNewIRequestFromString() {
+	// Create a new Request object with no auth key and some options
+	iir := NewIRequestFromString("empty options=cv")
+
+	fmt.Println("String: " + iir.String())
+	fmt.Println("IdAuth: " + iir.GetIidAuth())
+	fmt.Println("Header: " + iir.GetHeader())
+
+	// Output:
+	// String: empty options=cv
+	// IdAuth: empty
+	// Header: X-Instance-Id: empty options=cv
+}
+
+func ExampleNewIRequestFromString_WithKey() {
+	iir := NewIRequestFromString("key=caffee")
+	fmt.Println("String: " + iir.String())
+	fmt.Println("IdAuth: " + iir.GetIidAuth())
+
+	// Output:
+	// String: key=caffee
+	// IdAuth: caffee
+}
+
+func ExampleIRequest() {
+	iir := IRequest{}
+	iir.SetOption(
+		IOption{
+			commandName: "v",
+		},
+	).SetIidAuth("caffee")
+	fmt.Println("String: " + iir.String())
+	fmt.Println("IdAuth: " + iir.GetIidAuth())
+
+	// Output:
+	// String: key=caffee options=v
+	// IdAuth: caffee
 }
