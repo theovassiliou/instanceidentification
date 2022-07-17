@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -27,7 +26,7 @@ type Status struct {
 	Status string
 }
 
-// Writing simple X-Instance-Id header
+// Writing simple X-Instance-Id header, via Middleware
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	thisServiceCIID.SetCiids(iid.Stack{})
 
@@ -85,8 +84,6 @@ type CiidRouter struct {
 func InstanceIdMiddleware(r *CiidRouter) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-			fmt.Printf("RESP: %#v\n", w.Header())
-			fmt.Printf("REQ: %s\n", req.Header.Get(iid.XINSTANCEID))
 			// We only want to reply with the header if requested
 			if req.Header.Get(iid.XINSTANCEID) != "" {
 				w.Header().Add(iid.XINSTANCEID, r.Ciid.SetEpoch(startTime).String())
